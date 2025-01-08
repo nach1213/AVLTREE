@@ -433,6 +433,13 @@ class AVLTree(object):
                 self.root = second_tree.root
             self.update_height_till_root(b)
             self._rebalance_tree(x)
-
+    def split(self,node):
+        cur = self.root
+        small_tree = AVLTree()
+        while cur!=node.key:
+            if cur.key > node.key:
+                cur = cur.left
+            else:
+                cur = cur.right
 
 
