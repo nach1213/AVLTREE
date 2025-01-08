@@ -131,10 +131,15 @@ class AVLTree(object):
                 old_node.parent.right = new_node
             if new_node:
                 new_node.parent = old_node.parent
-
-        if not node_to_remove.left.is_real_node() or not node_to_remove.left.is_real_node():
+        if not node_to_remove.left.is_real_node() and node_to_remove.right.is_real_node():
+            node_to_remove.key = None
+            node_to_remove.value = None
+            node_to_remove.height= -1
+            node_to_remove.left = None
+            node_to_remove.right = None
+        elif not node_to_remove.left.is_real_node():
             replace_node_in_parent(node_to_remove, node_to_remove.right)
-        elif not node_to_remove.right.is_real_node() or not node_to_remove.right.is_real_node():
+        elif not node_to_remove.right.is_real_node():
             replace_node_in_parent(node_to_remove, node_to_remove.left)
         else:
             # Find the successor and swap values
