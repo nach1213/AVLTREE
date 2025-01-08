@@ -78,14 +78,18 @@ class AVLTree(object):
         """
         current_node = self.get_maximum()
         path_length = 0
-        if not current_node:
+        if not current_node or not  current_node.is_real_node():
             return None,path_length
-        while key <= current_node.parent and current_node != self.root:
+        if not current_node.parent or not current_node.parent.is_real_node():
+            return None, path_length
+        while key <= current_node.parent.key and current_node != self.root:
             if key == current_node.key:
                 return current_node, path_length + 1
-            elif key < current_node:
+            elif key < current_node.key:
                 current_node = current_node.parent
             path_length += 1
+            if not current_node.parent or not current_node.parent.is_real_node():
+                break
         while current_node and current_node.is_real_node():
             if key == current_node.key:
                 return current_node, path_length + 1
