@@ -80,6 +80,8 @@ class AVLTree(object):
         path_length = 0
         if not current_node or not  current_node.is_real_node():
             return None,path_length
+        if key == current_node.key:
+            return current_node, path_length + 1
         if not current_node.parent or not current_node.parent.is_real_node():
             return None, path_length
         while key <= current_node.parent.key and current_node != self.root:
@@ -141,6 +143,50 @@ class AVLTree(object):
         promote= self._rebalance_tree(new_node)
 
         return new_node, path_length,promote
+
+    def finger_insert(self, key, value):
+        """
+        Inserts a new node into the AVL tree.
+        :param key: The key for the new node (must be unique).
+        :param value: The value associated with the key.
+        :return: A tuple (node, path_length, rebalance_steps):
+            - node: The newly inserted node.
+            - path_length: Number of edges traversed during insertion.
+            - rebalance_steps: Number of promote operations during rebalancing.
+        """
+        new_node = AVLNode(key, value)
+        if self.root is None:
+            self.root = new_node
+            self.tree_size += 1
+            return new_node, 0, 0
+
+        current_node = self.get_maximum()
+        path_length = 0
+        parent_node = None
+        while key <= current_node.parent.key and current_node != self.root:
+            if key < current_node.key:
+                current_node = current_node.parent
+            path_length += 1
+            if not current_node.parent or not current_node.parent.is_real_node():
+                break
+        while current_node and current_node.is_real_node():
+            parent_node = current_node
+            path_length += 1
+            if key < current_node.key:
+                current_node = current_node.left
+            else:
+                current_node = current_node.right
+        # Attach the new node to its parent
+        new_node.parent = parent_node
+        if key < parent_node.key:
+            parent_node.left = new_node
+        else:
+            parent_node.right = new_node
+
+        self.tree_size += 1
+        promote = self._rebalance_tree(new_node)
+
+        return new_node, path_length, promote
 
     def delete(self, node_to_remove):
         """
