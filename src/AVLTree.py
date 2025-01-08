@@ -68,6 +68,32 @@ class AVLTree(object):
                 current_node = current_node.right
             path_length += 1
         return None, path_length
+    def finger_search(self, key):
+        """
+        Searches for a node with the given key in the AVL tree.
+        :param key: The key to search for.
+        :return: A tuple (node, path_length):
+            - node: The node with the matching key or None if not found.
+            - path_length: Number of edges traversed during the search.
+        """
+        current_node = self.get_maximum()
+        path_length = 0
+        while key <= current_node.parent and current_node != self.root:
+            if key == current_node.key:
+                return current_node, path_length + 1
+            elif key < current_node:
+                current_node = current_node.parent
+            path_length += 1
+        while current_node and current_node.is_real_node():
+            if key == current_node.key:
+                return current_node, path_length + 1
+            elif key < current_node.key:
+                current_node = current_node.left
+            else:
+                current_node = current_node.right
+            path_length += 1
+        return None, path_length
+
 
     def insert(self, key, value):
         """

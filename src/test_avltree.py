@@ -112,7 +112,7 @@ def test_insertsions_increasing_values() -> None:
     assert tree.insert(8, "")[1:] == (3, 3)
     assert pre_order_keys(tree) == [4, 2, 1, 3, 6, 5, 7, 8]
     assert tree.size() == 8
-    assert (root := tree.get_root()) is not None and root.height == 3
+    assert (root := tree.get_root()) is not None and root.height == 3 #promote
 
 
 def test_single_left_rotation() -> None:
