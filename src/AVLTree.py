@@ -14,8 +14,8 @@ class AVLNode(object):
         """
         self.key = key
         self.value = value
-        self.left = None  # Left child node
-        self.right = None  # Right child node
+        self.left = None if key is None else AVLNode()  # Left child node
+        self.right = None if key is None else AVLNode() # Right child node
         self.parent = None  # Parent node
         self.height = 0 if key is not None else -1  # Height (-1 for virtual nodes)
 
