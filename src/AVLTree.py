@@ -6,7 +6,7 @@
 #username2: nirgottlieb
 from typing import Protocol
 
-
+import copy
 class AVLNode(object):
     def __init__(self, key = None, value = None):
         """
@@ -240,6 +240,7 @@ class AVLTree(object):
         result = []
 
         def in_order_traversal(node):
+            self._update_height(node)
             if node and node.is_real_node():
                 in_order_traversal(node.left)
                 result.append((node.key, node.value))
@@ -363,84 +364,140 @@ class AVLTree(object):
             self._update_height(node)
             node = node.parent
 
-    def join(self,second_tree,key,value):
+    def join(self, second_tree, key, value):
         """
-        Joins two AVL trees with a new node.
-        :param second_tree: The second AVL tree to join.
+        Joins two AVL trees (self and second_tree) with a new node (key, value).
+        Assumes all keys in 'self' are < key < all keys in 'second_tree'
+        (or the symmetric case if reversed).
         """
 
-        x = AVLNode(key,value)
-        if second_tree.root is None:
-            self.insert(key,value)
-            return
-        self.tree_size  += second_tree.tree_size + 1
-        if self.root is None:
-            second_tree.insert(key,value)
-            self.root=second_tree.root
+        # Create bridging node
+        x = AVLNode(key, value)
+
+        # Case 1: second_tree is empty => just insert into self
+        if second_tree.root is None or not second_tree.root.is_real_node():
+            self.insert(key, value)
             return
 
-        if second_tree.root.height < self.root.height:
+        # Merge sizes
+        self.tree_size += second_tree.tree_size + 1
+
+        # Case 2: self is empty => insert into second_tree, then adopt its root
+        if self.root is None or not self.root.is_real_node():
+            second_tree.insert(key, value)
+            self.root = second_tree.root
+            return
+
+        # Compare heights
+        if second_tree.root.height <= self.root.height:
+            # -----------------------------
+            # self is taller (or same)
+            # -----------------------------
             h = second_tree.root.height
             b = self.root
-            smaller = (b.key > x.key)
             p = None
-            while h < b.height:
+
+            smaller = (b.key > x.key)
+
+            # Descend self.root until height ~ h
+            while b.is_real_node() and h < b.height:
                 p = b
                 if smaller:
                     b = b.left
                 else:
                     b = b.right
 
+            # Attach second_tree.root under x on one side, 'b' on the other
             if smaller:
                 x.right = b
                 x.left = second_tree.root
             else:
                 x.left = b
                 x.right = second_tree.root
-            b.parent=x
+
+            b.parent = x
+            second_tree.root.parent = x
+
+            # Insert bridging node x under p
             if p is None:
+                # x becomes the new root
                 self.root = x
+                x.parent = None
             else:
                 if smaller:
                     p.left = x
                 else:
                     p.right = x
                 x.parent = p
-                second_tree.root.parent = x
+
+            # Update heights and rebalance
             self.update_height_till_root(b)
             self._rebalance_tree(x)
+
         else:
-            h = self.root.height
-            b = second_tree.root
+            # -----------------------------
+            # second_tree is taller
+            # -----------------------------
+            # Temporarily set self.root to second_tree's root
+            # so we effectively treat second_tree as "the base"
+            self.root = second_tree.root
+
+            h = self.root.height  # which is second_tree.root.height
+            b = self.root
             p = None
+
             smaller = (b.key > x.key)
-            while h < b.height:
+
+            # Descend second_tree.root until height ~ self's old root.height
+            old_self_height = self.get_height(self.root_of_self_before_join) \
+                if hasattr(self, "root_of_self_before_join") else (
+                -1 if not self.root else self.root.height
+            )
+            # If you stored the old self height somewhere, or
+            # just use your old tree's height logic.
+
+            # For simplicity, let's say:
+            old_self_height = self.get_height_of_old_self()
+            # (You might implement something like that or just store
+            #  old_self_height before you do `self.root = second_tree.root`.)
+
+            while b.is_real_node() and old_self_height < b.height:
                 p = b
                 if smaller:
                     b = b.left
                 else:
                     b = b.right
 
-            if not b.is_real_node():
+            # If we ended on a virtual node, step back to its parent
+            if b is not None and not b.is_real_node():
                 b = b.parent
 
+            # Attach bridging node x
             if smaller:
                 x.right = b
-                x.left = self.root
+                x.left = self.root_of_self_before_join  # the old self
             else:
                 x.left = b
-                x.right = self.root
-            b.parent=x
+                x.right = self.root_of_self_before_join
+
+            # Fix parents
+            b.parent = x
+            if x.left is not None:
+                x.left.parent = x
+            if x.right is not None:
+                x.right.parent = x
+
             if p is None:
+                # x becomes new root
                 self.root = x
+                x.parent = None
             else:
                 if smaller:
                     p.left = x
                 else:
                     p.right = x
                 x.parent = p
-                self.root.parent = x
-                self.root = second_tree.root
+
             self.update_height_till_root(b)
             self._rebalance_tree(x)
 
