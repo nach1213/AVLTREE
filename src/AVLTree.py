@@ -273,3 +273,48 @@ class AVLTree(object):
         while node and node.left and node.left.is_real_node():
             node = node.left
         return node
+
+    def join(self,second_tree,x_key,x_value):
+        """
+        Joins two AVL trees with a new node.
+        :param second_tree: The second AVL tree to join.
+        """
+        x = AVLNode(x_key,x_value)
+
+        if second_tree.root.height > self.root.height:
+            second_tree,x = x,second_tree
+
+        if second_tree.root is None:
+            self.insert(x_key,x_value)
+            return
+        if self.root is None:
+            self.root=x
+            return
+
+        h = second_tree.root.height
+        b = self.root
+        while h < b.height:
+            b = b.left
+
+        if b.key > x.key:
+            x.right = b
+            x.left = second_tree.root
+        else:
+            x.left = b
+            x.right = second_tree.root
+
+        p = b.parent
+        if p is None:
+            self.root = x
+        else:
+            if b.key > x.key:
+                p.left = x
+            else:
+                p.right = x
+            x.parent = p
+            b.parent = x
+            second_tree.root.parent = x
+        self._rebalance_tree(x)
+
+
+
