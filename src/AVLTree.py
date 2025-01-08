@@ -117,7 +117,11 @@ class AVLTree(object):
         """
         if not node_to_remove or not node_to_remove.is_real_node():
             return
-        #add delete if size == 1.
+        if self.tree_size == 1:
+            self.root = None
+            self.tree_size = 0
+            node_to_remove = None
+            return
 
         def replace_node_in_parent(old_node, new_node):
             """
@@ -131,12 +135,9 @@ class AVLTree(object):
                 old_node.parent.right = new_node
             if new_node:
                 new_node.parent = old_node.parent
-        if not node_to_remove.left.is_real_node() and node_to_remove.right.is_real_node():
-            node_to_remove.key = None
-            node_to_remove.value = None
-            node_to_remove.height= -1
-            node_to_remove.left = None
-            node_to_remove.right = None
+
+        if not node_to_remove.left.is_real_node() and not node_to_remove.right.is_real_node():
+            node_to_remove = node_to_remove.left.left
         elif not node_to_remove.left.is_real_node():
             replace_node_in_parent(node_to_remove, node_to_remove.right)
         elif not node_to_remove.right.is_real_node():
