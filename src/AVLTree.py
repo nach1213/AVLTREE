@@ -76,7 +76,7 @@ class AVLTree(object):
             - node: The node with the matching key or None if not found.
             - path_length: Number of edges traversed during the search.
         """
-        current_node = self.get_maximum()
+        current_node = self.max_node()
         path_length = 0
         if not current_node or not  current_node.is_real_node():
             return None,path_length
@@ -160,7 +160,7 @@ class AVLTree(object):
             self.tree_size += 1
             return new_node, 0, 0
 
-        current_node = self.get_maximum()
+        current_node = self.max_node()
         path_length = 0
         parent_node = None
         while key <= current_node.parent.key and current_node != self.root:
@@ -245,7 +245,7 @@ class AVLTree(object):
         in_order_traversal(self.root)
         return result
 
-    def get_maximum(self):
+    def max_node(self):
         """
         Finds the node with the maximum key in the tree.
         :return: The node with the maximum key, or None if the tree is empty.
