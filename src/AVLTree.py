@@ -217,8 +217,11 @@ class AVLTree(object):
                 new_node.parent = old_node.parent
 
         if not node_to_remove.left.is_real_node() and not node_to_remove.right.is_real_node():
-            node_to_remove.parent.left = AVLNode()
-            return
+            if node_to_remove.parent.left == node_to_remove:
+                node_to_remove.parent.left = AVLNode()
+                return
+            else:
+                node_to_remove.parent.right = AVLNode()
         elif not node_to_remove.left.is_real_node():
             replace_node_in_parent(node_to_remove, node_to_remove.right)
         elif not node_to_remove.right.is_real_node():
@@ -226,11 +229,14 @@ class AVLTree(object):
         else:
             # Find the successor and swap values
             successor = self._find_min(node_to_remove.right)
-            node_to_remove.key, node_to_remove.value, node_to_remove.left, node_to_remove.right = successor.key, successor.value, successor.left, successor.right
+            print(node_to_remove.left.key)
+            print(successor.key)
+            node_to_remove.key, node_to_remove.value = successor.key, successor.value
             self.delete(successor)
+            print(node_to_remove.left.key,node_to_remove.right.key)
 
         self.tree_size -= 1
-        self._rebalance_tree(node_to_remove)
+        self._rebalance_tree(node_to_remove.parent)
 
     def avl_to_array(self):
         """
