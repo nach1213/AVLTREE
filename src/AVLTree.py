@@ -33,7 +33,7 @@ class AVLTree(object):
         Initializes an empty AVL tree.
         """
         self.root = None
-        self.size = 0  # Tracks the number of real nodes in the tree.
+        self.tree_size = 0  # Tracks the number of real nodes in the tree.
 
     def get_root(self):
         """
@@ -42,12 +42,12 @@ class AVLTree(object):
         """
         return self.root
 
-    def get_size(self):
+    def size(self):
         """
         Returns the number of nodes in the AVL tree.
         :return: Integer size of the tree.
         """
-        return self.size
+        return self.tree_size
 
     def search(self, key):
         """
@@ -82,7 +82,7 @@ class AVLTree(object):
         new_node = AVLNode(key, value)
         if self.root is None:
             self.root = new_node
-            self.size += 1
+            self.tree_size += 1
             return new_node, 0, 0
 
         current_node = self.root
@@ -105,7 +105,7 @@ class AVLTree(object):
         else:
             parent_node.right = new_node
 
-        self.size += 1
+        self.tree_size += 1
         rebalance_steps = self._rebalance_tree(new_node)
         return new_node, path_length, rebalance_steps
 
@@ -117,10 +117,9 @@ class AVLTree(object):
         """
         if not node_to_remove or not node_to_remove.is_real_node():
             return
-        if self.size == 1:
+        if self.tree_size == 1:
             self.root = None
-            self.size = 0
-            node_to_remove = None
+            self.tree_size = 0
             return
 
         def replace_node_in_parent(old_node, new_node):
@@ -148,7 +147,7 @@ class AVLTree(object):
             node_to_remove.key, node_to_remove.value = successor.key, successor.value
             self.delete(successor)
 
-        self.size -= 1
+        self.tree_size -= 1
         self._rebalance_tree(node_to_remove.parent)
 
     def convert_to_sorted_list(self):
