@@ -306,6 +306,14 @@ class AVLTree(object):
             node = node.left
         return node
 
+    def update_height_till_root(self,node):
+        """
+        Updates the height of the given node and all its ancestors.
+        """
+        while node:
+            self._update_height(node)
+            node = node.parent
+
     def join(self,second_tree,key,value):
         """
         Joins two AVL trees with a new node.
@@ -326,7 +334,10 @@ class AVLTree(object):
             h = second_tree.root.height
             b = self.root
             while h < b.height:
-                b = b.left
+                if b.key > x.key:
+                    b = b.left
+                else:
+                    b = b.right
 
             if b.key > x.key:
                 x.right = b
@@ -345,12 +356,16 @@ class AVLTree(object):
                     p.right = x
                 x.parent = p
                 second_tree.root.parent = x
+            self.update_height_till_root(b)
             self._rebalance_tree(x)
         else:
             h = self.root.height
             b = second_tree.root
             while h < b.height:
-                b = b.right
+                if b.key > x.key:
+                    b = b.left
+                else:
+                    b = b.right
 
             if b.key > x.key:
                 x.right = b
@@ -370,6 +385,7 @@ class AVLTree(object):
                 x.parent = p
                 self.root.parent = x
                 self.root = second_tree.root
+            self.update_height_till_root(b)
             self._rebalance_tree(x)
 
 
