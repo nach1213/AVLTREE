@@ -4,6 +4,8 @@
 #id2:
 #name2:
 #username2:
+from typing import Protocol
+
 
 class AVLNode(object):
     def __init__(self, key = None, value = None):
@@ -215,7 +217,8 @@ class AVLTree(object):
                 new_node.parent = old_node.parent
 
         if not node_to_remove.left.is_real_node() and not node_to_remove.right.is_real_node():
-            node_to_remove = node_to_remove.left.left
+            node_to_remove.parent.left = AVLNode()
+            return
         elif not node_to_remove.left.is_real_node():
             replace_node_in_parent(node_to_remove, node_to_remove.right)
         elif not node_to_remove.right.is_real_node():
@@ -223,11 +226,11 @@ class AVLTree(object):
         else:
             # Find the successor and swap values
             successor = self._find_min(node_to_remove.right)
-            node_to_remove.key, node_to_remove.value = successor.key, successor.value
+            node_to_remove.key, node_to_remove.value, node_to_remove.left, node_to_remove.right = successor.key, successor.value, successor.left, successor.right
             self.delete(successor)
 
         self.tree_size -= 1
-        self._rebalance_tree(node_to_remove.parent)
+        self._rebalance_tree(node_to_remove)
 
     def convert_to_sorted_list(self):
         """
