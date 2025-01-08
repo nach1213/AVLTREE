@@ -124,7 +124,6 @@ class AVLTree(object):
         current_node = self.root
         parent_node = None
         path_length = 0
-
         # Find the correct position for the new node
         while current_node and current_node.is_real_node():
             parent_node = current_node
@@ -140,7 +139,6 @@ class AVLTree(object):
             parent_node.left = new_node
         else:
             parent_node.right = new_node
-
         self.tree_size += 1
         promote= self._rebalance_tree(new_node)
 
@@ -229,12 +227,8 @@ class AVLTree(object):
         else:
             # Find the successor and swap values
             successor = self._find_min(node_to_remove.right)
-            print(node_to_remove.left.key)
-            print(successor.key)
             node_to_remove.key, node_to_remove.value = successor.key, successor.value
             self.delete(successor)
-            print(node_to_remove.left.key,node_to_remove.right.key)
-
         self.tree_size -= 1
         self._rebalance_tree(node_to_remove.parent)
 
@@ -286,7 +280,7 @@ class AVLTree(object):
             # Right-heavy
             elif balance_factor < -1:
                 if self._get_balance_factor(node.right) > 0:
-                    self._rotate_right(node.right)
+                   self._rotate_right(node.right)
                 self._rotate_left(node)
                 promote_count += 1
             node = node.parent
@@ -309,6 +303,8 @@ class AVLTree(object):
             node.parent.right = right
         right.left = node
         node.parent = right
+        if node.parent:
+            self.root = right
         self._update_height(node)
         self._update_height(right)
 
@@ -329,6 +325,8 @@ class AVLTree(object):
             node.parent.left = left
         left.right = node
         node.parent = left
+        if left.parent:
+            self.root = left
         self._update_height(node)
         self._update_height(left)
 
@@ -390,6 +388,7 @@ class AVLTree(object):
 
         # Case 2: self is empty => insert into second_tree, then adopt its root
         if self.root is None or not self.root.is_real_node():
+            print(1)
             second_tree.insert(key, value)
             self.root = second_tree.root
             return
@@ -412,7 +411,6 @@ class AVLTree(object):
                     b = b.left
                 else:
                     b = b.right
-
             # Attach second_tree.root under x on one side, 'b' on the other
             if smaller:
                 x.right = b
@@ -420,10 +418,8 @@ class AVLTree(object):
             else:
                 x.left = b
                 x.right = second_tree.root
-
             b.parent = x
             second_tree.root.parent = x
-
             # Insert bridging node x under p
             if p is None:
                 # x becomes the new root
@@ -504,6 +500,7 @@ class AVLTree(object):
                     p.right = x
                 x.parent = p
 
+
             self.update_height_till_root(b)
             self._rebalance_tree(x)
 
@@ -513,29 +510,29 @@ class AVLTree(object):
         x_left = None
         x_right = None
 
-        cur = self.root
+        current_node = self.root
         while True:
-            if node.key <= cur.key:
+            if node.key <= current_node.key:
                 if x_right is None:
-                    t_right.root = cur.right
+                    t_right.root = current_node.right
                 else:
                     sub_tree = AVLTree()
-                    sub_tree.root = cur.right
+                    sub_tree.root = current_node.right
                     t_right.join(sub_tree, x_right.key, x_right.value)
-                x_right = cur
-            if node.key >= cur.key:
+                x_right = current_node
+            if node.key >= current_node.key:
                 if x_left is None:
-                    t_left.root = cur.left
+                    t_left.root = current_node.left
                 else:
                     sub_tree = AVLTree()
-                    sub_tree.root = cur.left
+                    sub_tree.root = current_node.left
                     t_left.join(sub_tree, x_left.key, x_left.value)
-                x_left = cur
-            if node.key == cur.key:
+                x_left = current_node
+            if node.key == current_node.key:
                 break
-            if node.key > cur.key:
-                cur = cur.right
+            if node.key > current_node.key:
+                current_node = current_node.right
             else:
-                cur = cur.left
+                current_node = current_node.left
         return (t_left,t_right)
 
