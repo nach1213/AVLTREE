@@ -21,7 +21,7 @@ class AVLNode(object):
         self.parent = None  # Parent node
         self.height = 0 if key is not None else -1  # Height (-1 for virtual nodes)
 
-    def is_real_node(self):
+    def is_real_node(self):#O(1)
         """
         Determines if this node is a real node (not a virtual one).
         :return: True if real, False if virtual.
@@ -30,28 +30,35 @@ class AVLNode(object):
 
 
 class AVLTree(object):
-    def __init__(self):
+    def __init__(self):#O(1)
         """
         Initializes an empty AVL tree.
         """
+        self.max = AVLNode(None,None)
         self.root = None
         self.tree_size = 0  # Tracks the number of real nodes in the tree.
 
-    def get_root(self):
+    def calculate_maximum(self):#O(log n)
+        current_node = self.root
+        while current_node and current_node.right and current_node.right.is_real_node():
+            current_node = current_node.right
+        return current_node
+
+    def get_root(self):#O(1)
         """
         Returns the root of the AVL tree.
         :return: The root node of the tree or None if the tree is empty.
         """
         return self.root
 
-    def size(self):
+    def size(self):#O(1)
         """
         Returns the number of nodes in the AVL tree.
         :return: Integer size of the tree.
         """
         return self.tree_size
 
-    def search(self, key):
+    def search(self, key):#O(log n)
         """
         Searches for a node with the given key in the AVL tree.
         :param key: The key to search for.
@@ -70,7 +77,7 @@ class AVLTree(object):
                 current_node = current_node.right
             path_length += 1
         return None, path_length
-    def finger_search(self, key):
+    def finger_search(self, key): #O(log n)
         """
         Searches for a node with the given key in the AVL tree.
         :param key: The key to search for.
@@ -105,7 +112,7 @@ class AVLTree(object):
         return None, path_length
 
 
-    def insert(self, key, value):
+    def insert(self, key, value): # O(log n)
         """
         Inserts a new node into the AVL tree.
         :param key: The key for the new node (must be unique).
@@ -144,9 +151,10 @@ class AVLTree(object):
         self.tree_size += 1
         promote= self._rebalance_tree(new_node)
 
+        self.max = self.calculate_maximum()
         return new_node, path_length,promote
 
-    def finger_insert(self, key, value):
+    def finger_insert(self, key, value): #O(log n)
         """
         Inserts a new node into the AVL tree.
         :param key: The key for the new node (must be unique).
@@ -159,6 +167,7 @@ class AVLTree(object):
         new_node = AVLNode(key, value)
         if self.root is None:
             self.root = new_node
+            self.max = new_node
             self.tree_size += 1
             return new_node, 0, 0
 
@@ -187,10 +196,11 @@ class AVLTree(object):
 
         self.tree_size += 1
         promote = self._rebalance_tree(new_node)
-
+        if self.max is None or new_node.key > self.max.key:
+            self.max = new_node
         return new_node, path_length, promote
 
-    def delete(self, node_to_remove):
+    def delete(self, node_to_remove): #O(log n)
         """
         Deletes a node from the AVL tree and maintains balance.
         :param node_to_remove: The node to delete.
@@ -203,7 +213,7 @@ class AVLTree(object):
             self.tree_size = 0
             return
 
-        def replace_node_in_parent(old_node, new_node):
+        def replace_node_in_parent(old_node, new_node): #O(log n)
             """
             Helper function to replace a node in the parent's child reference.
             """
@@ -233,8 +243,9 @@ class AVLTree(object):
             self.delete(successor)
         self.tree_size -= 1
         self._rebalance_tree(node_to_remove.parent)
+        self.max = self.calculate_maximum()
 
-    def avl_to_array(self):
+    def avl_to_array(self): #O(n)
         """
         Converts the AVL tree into a sorted list of (key, value) pairs.
         :return: A sorted list of tuples.
@@ -251,18 +262,15 @@ class AVLTree(object):
         in_order_traversal(self.root)
         return result
 
-    def max_node(self):
+    def max_node(self):#O(1)
         """
-        Finds the node with the maximum key in the tree.
-        :return: The node with the maximum key, or None if the tree is empty.
-        """
-        current_node = self.root
-        while current_node and current_node.right and current_node.right.is_real_node():
-            current_node = current_node.right
-        return current_node
+                :return: The node with the maximum key, or None if the tree is empty.
+                """
+        return self.max
+
 
     # Internal helper methods
-    def _rebalance_tree(self, node):
+    def _rebalance_tree(self, node):#O(log n)
         """
         Rebalances the AVL tree starting from the given node upwards.
         :param node: The starting node for rebalancing.
@@ -288,7 +296,7 @@ class AVLTree(object):
             node = node.parent
         return promote_count
 
-    def _rotate_left(self, node,x=False):
+    def _rotate_left(self, node,x=False):#O(1)
         """
         Performs a left rotation around the given node.
         """
@@ -312,7 +320,7 @@ class AVLTree(object):
         self._update_height(node)
         self._update_height(right)
 
-    def _rotate_right(self, node, x = False):
+    def _rotate_right(self, node, x = False):#O(1)
         """
         Performs a right rotation around the given node.
         """
@@ -326,7 +334,6 @@ class AVLTree(object):
         if not node.parent:
             self.root = left
         elif node == node.parent.right:
-            self.max_node()
             node.parent.right = left
         else:
             node.parent.left = left
@@ -337,7 +344,7 @@ class AVLTree(object):
         self._update_height(node)
         self._update_height(left)
 
-    def _update_height(self, node):
+    def _update_height(self, node):#O(1)
         """
         Updates the height of the given node.
         """
@@ -347,7 +354,7 @@ class AVLTree(object):
             node.height = max(left_height, right_height) + 1
 
 
-    def _get_balance_factor(self, node):
+    def _get_balance_factor(self, node):#O(1)
         """
         Calculates the balance factor of the given node.
         :return: The balance factor (left height - right height).
@@ -358,7 +365,7 @@ class AVLTree(object):
         right_height = node.right.height if node.right.is_real_node() else -1
         return left_height - right_height
 
-    def _find_min(self, node):
+    def _find_min(self, node):#O(log n)
         """
         Finds the minimum node starting from the given node.
         :return: The node with the smallest key in the subtree.
@@ -367,7 +374,7 @@ class AVLTree(object):
             node = node.left
         return node
 
-    def update_height_till_root(self,node):
+    def update_height_till_root(self,node):#O(log n)
         """
         Updates the height of the given node and all its ancestors.
         """
@@ -375,7 +382,7 @@ class AVLTree(object):
             self._update_height(node)
             node = node.parent
 
-    def join(self, second_tree, key, value):
+    def join(self, second_tree, key, value):#O(log n)
         """
         Joins two AVL trees (self and second_tree) with a new node (key, value).
         Assumes all keys in 'self' are < key < all keys in 'second_tree'
@@ -505,8 +512,9 @@ class AVLTree(object):
 
             self.update_height_till_root(b)
             self._rebalance_tree(x)
+        self.max = self.calculate_maximum()
 
-    def split(self,node):
+    def split(self,node):#O(log n)
         t_left = AVLTree()
         t_right = AVLTree()
         x_left = None
