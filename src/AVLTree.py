@@ -106,8 +106,9 @@ class AVLTree(object):
             parent_node.right = new_node
 
         self.tree_size += 1
-        rebalance_steps = self._rebalance_tree(new_node)
-        return new_node, path_length, rebalance_steps
+        promote= self._rebalance_tree(new_node)
+
+        return new_node, path_length,promote
 
     def delete(self, node_to_remove):
         """
@@ -187,7 +188,6 @@ class AVLTree(object):
         while node:
             self._update_height(node)
             balance_factor = self._get_balance_factor(node)
-
             # Left-heavy
             if balance_factor > 1:
                 if self._get_balance_factor(node.left) < 0:
@@ -201,7 +201,6 @@ class AVLTree(object):
                     self._rotate_right(node.right)
                 self._rotate_left(node)
                 promote_count += 1
-
             node = node.parent
         return promote_count
 
@@ -254,6 +253,7 @@ class AVLTree(object):
             right_height = node.right.height if node.right else -1
             node.height = max(left_height, right_height) + 1
 
+
     def _get_balance_factor(self, node):
         """
         Calculates the balance factor of the given node.
@@ -261,8 +261,8 @@ class AVLTree(object):
         """
         if not node or not node.is_real_node():
             return 0
-        left_height = node.left.height if node.left else -1
-        right_height = node.right.height if node.right else -1
+        left_height = node.left.height if node.left.is_real_node() else -1
+        right_height = node.right.height if node.right.is_real_node() else -1
         return left_height - right_height
 
     def _find_min(self, node):
