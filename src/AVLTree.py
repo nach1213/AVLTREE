@@ -113,6 +113,7 @@ class AVLTree(object):
 
 
     def insert(self, key, value): # O(log n)
+        #promote isnt working but everthing else work
         """
         Inserts a new node into the AVL tree.
         :param key: The key for the new node (must be unique).
