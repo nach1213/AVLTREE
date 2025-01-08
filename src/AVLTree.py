@@ -286,10 +286,12 @@ class AVLTree(object):
             node = node.parent
         return promote_count
 
-    def _rotate_left(self, node):
+    def _rotate_left(self, node,x=False):
         """
         Performs a left rotation around the given node.
         """
+        if node.key == self.root.key:
+            x = True
         right = node.right
         node.right = right.left
         if right.left:
@@ -303,15 +305,17 @@ class AVLTree(object):
             node.parent.right = right
         right.left = node
         node.parent = right
-        if node.parent:
+        if x:
             self.root = right
         self._update_height(node)
         self._update_height(right)
 
-    def _rotate_right(self, node):
+    def _rotate_right(self, node, x = False):
         """
         Performs a right rotation around the given node.
         """
+        if node.key == self.root.key:
+            x = True
         left = node.left
         node.left = left.right
         if left.right:
@@ -320,12 +324,13 @@ class AVLTree(object):
         if not node.parent:
             self.root = left
         elif node == node.parent.right:
+            self.max_node()
             node.parent.right = left
         else:
             node.parent.left = left
         left.right = node
         node.parent = left
-        if left.parent:
+        if x:
             self.root = left
         self._update_height(node)
         self._update_height(left)
@@ -458,10 +463,6 @@ class AVLTree(object):
             # If you stored the old self height somewhere, or
             # just use your old tree's height logic.
 
-            # For simplicity, let's say:
-            old_self_height = self.get_height_of_old_self()
-            # (You might implement something like that or just store
-            #  old_self_height before you do `self.root = second_tree.root`.)
 
             while b.is_real_node() and old_self_height < b.height:
                 p = b
@@ -477,10 +478,8 @@ class AVLTree(object):
             # Attach bridging node x
             if smaller:
                 x.right = b
-                x.left = self.root_of_self_before_join  # the old self
             else:
                 x.left = b
-                x.right = self.root_of_self_before_join
 
             # Fix parents
             b.parent = x
