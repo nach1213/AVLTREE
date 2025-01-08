@@ -61,7 +61,7 @@ class AVLTree(object):
         path_length = 0
         while current_node and current_node.is_real_node():
             if key == current_node.key:
-                return current_node, path_length
+                return current_node, path_length+1
             elif key < current_node.key:
                 current_node = current_node.left
             else:
