@@ -34,8 +34,15 @@ class AVLTree(object):
         """
         Initializes an empty AVL tree.
         """
+        self.max = AVLNode(None,None)
         self.root = None
         self.tree_size = 0  # Tracks the number of real nodes in the tree.
+
+    def calculate_maximum(self):
+        current_node = self.root
+        while current_node and current_node.right and current_node.right.is_real_node():
+            current_node = current_node.right
+        return current_node
 
     def get_root(self):
         """
@@ -51,7 +58,7 @@ class AVLTree(object):
         """
         return self.tree_size
 
-    def search(self, key):
+    def search(self, key):#O(log n)
         """
         Searches for a node with the given key in the AVL tree.
         :param key: The key to search for.
@@ -70,7 +77,7 @@ class AVLTree(object):
                 current_node = current_node.right
             path_length += 1
         return None, path_length
-    def finger_search(self, key):
+    def finger_search(self, key): #O(log n)
         """
         Searches for a node with the given key in the AVL tree.
         :param key: The key to search for.
@@ -105,7 +112,7 @@ class AVLTree(object):
         return None, path_length
 
 
-    def insert(self, key, value):
+    def insert(self, key, value): # O(log n)
         """
         Inserts a new node into the AVL tree.
         :param key: The key for the new node (must be unique).
@@ -144,9 +151,10 @@ class AVLTree(object):
         self.tree_size += 1
         promote= self._rebalance_tree(new_node)
 
+        self.max = self.calculate_maximum()
         return new_node, path_length,promote
 
-    def finger_insert(self, key, value):
+    def finger_insert(self, key, value): #O(log n)
         """
         Inserts a new node into the AVL tree.
         :param key: The key for the new node (must be unique).
@@ -159,6 +167,7 @@ class AVLTree(object):
         new_node = AVLNode(key, value)
         if self.root is None:
             self.root = new_node
+            self.max = new_node
             self.tree_size += 1
             return new_node, 0, 0
 
@@ -187,10 +196,11 @@ class AVLTree(object):
 
         self.tree_size += 1
         promote = self._rebalance_tree(new_node)
-
+        if self.max is None or new_node.key > self.max.key:
+            self.max = new_node
         return new_node, path_length, promote
 
-    def delete(self, node_to_remove):
+    def delete(self, node_to_remove): #O(log n)
         """
         Deletes a node from the AVL tree and maintains balance.
         :param node_to_remove: The node to delete.
@@ -203,7 +213,7 @@ class AVLTree(object):
             self.tree_size = 0
             return
 
-        def replace_node_in_parent(old_node, new_node):
+        def replace_node_in_parent(old_node, new_node): #O(1)
             """
             Helper function to replace a node in the parent's child reference.
             """
@@ -237,8 +247,9 @@ class AVLTree(object):
 
         self.tree_size -= 1
         self._rebalance_tree(node_to_remove.parent)
+        self.max = self.calculate_maximum()
 
-    def avl_to_array(self):
+    def avl_to_array(self): #O(n)
         """
         Converts the AVL tree into a sorted list of (key, value) pairs.
         :return: A sorted list of tuples.
@@ -256,14 +267,10 @@ class AVLTree(object):
         return result
 
     def max_node(self):
+        return self.max
         """
-        Finds the node with the maximum key in the tree.
         :return: The node with the maximum key, or None if the tree is empty.
         """
-        current_node = self.root
-        while current_node and current_node.right and current_node.right.is_real_node():
-            current_node = current_node.right
-        return current_node
 
     # Internal helper methods
     def _rebalance_tree(self, node):
@@ -506,6 +513,7 @@ class AVLTree(object):
 
             self.update_height_till_root(b)
             self._rebalance_tree(x)
+        self.max = self.calculate_maximum()
 
     def split(self,node):
         t_left = AVLTree()
@@ -537,5 +545,7 @@ class AVLTree(object):
                 cur = cur.right
             else:
                 cur = cur.left
+        t_left.max = t_left.calculate_maximum()
+        t_right.max = t_right.calculate_maximum()
         return (t_left,t_right)
 
