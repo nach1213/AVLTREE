@@ -347,6 +347,7 @@ def test_empty_join_with_empty() -> None:
     tree2: AVLTreeProtocol = AVLTree()
     
     tree1.join(tree2, 1, "")
+    print(pre_order_keys(tree1))
     assert pre_order_keys(tree1) == [1]
     assert tree1.size() == 1
 
