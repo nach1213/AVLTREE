@@ -1,9 +1,9 @@
 #id1: 328242284
 #name1: nadav cherno
 #username1: cherno
-#id2:
-#name2:
-#username2:
+#id2: 215713421
+#name2: itamar nir
+#username2: nirgottlieb
 from typing import Protocol
 
 
@@ -382,24 +382,26 @@ class AVLTree(object):
         if second_tree.root.height < self.root.height:
             h = second_tree.root.height
             b = self.root
+            smaller = (b.key > x.key)
+            p = None
             while h < b.height:
-                if b.key > x.key:
+                p = b
+                if smaller:
                     b = b.left
                 else:
                     b = b.right
 
-            if b.key > x.key:
+            if smaller:
                 x.right = b
                 x.left = second_tree.root
             else:
                 x.left = b
                 x.right = second_tree.root
-            p = b.parent
             b.parent=x
             if p is None:
                 self.root = x
             else:
-                if b.key > x.key:
+                if smaller:
                     p.left = x
                 else:
                     p.right = x
@@ -410,24 +412,29 @@ class AVLTree(object):
         else:
             h = self.root.height
             b = second_tree.root
+            p = None
+            smaller = (b.key > x.key)
             while h < b.height:
-                if b.key > x.key:
+                p = b
+                if smaller:
                     b = b.left
                 else:
                     b = b.right
 
-            if b.key > x.key:
+            if not b.is_real_node():
+                b = b.parent
+
+            if smaller:
                 x.right = b
                 x.left = self.root
             else:
                 x.left = b
                 x.right = self.root
-            p = b.parent
             b.parent=x
             if p is None:
                 self.root = x
             else:
-                if b.key > x.key:
+                if smaller:
                     p.left = x
                 else:
                     p.right = x
