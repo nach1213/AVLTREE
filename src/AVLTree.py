@@ -229,7 +229,7 @@ class AVLTree(object):
         self.tree_size -= 1
         self._rebalance_tree(node_to_remove.parent)
 
-    def convert_to_sorted_list(self):
+    def avl_to_array(self):
         """
         Converts the AVL tree into a sorted list of (key, value) pairs.
         :return: A sorted list of tuples.
@@ -433,13 +433,36 @@ class AVLTree(object):
                 self.root = second_tree.root
             self.update_height_till_root(b)
             self._rebalance_tree(x)
-    def split(self,node):
-        cur = self.root
-        small_tree = AVLTree()
-        while cur!=node.key:
-            if cur.key > node.key:
-                cur = cur.left
-            else:
-                cur = cur.right
 
+    def split(self,node):
+        t_left = AVLTree()
+        t_right = AVLTree()
+        x_left = None
+        x_right = None
+
+        cur = self.root
+        while True:
+            if node.key <= cur.key:
+                if x_right is None:
+                    t_right.root = cur.right
+                else:
+                    sub_tree = AVLTree()
+                    sub_tree.root = cur.right
+                    t_right.join(sub_tree, x_right.key, x_right.value)
+                x_right = cur
+            if node.key >= cur.key:
+                if x_left is None:
+                    t_left.root = cur.left
+                else:
+                    sub_tree = AVLTree()
+                    sub_tree.root = cur.left
+                    t_left.join(sub_tree, x_left.key, x_left.value)
+                x_left = cur
+            if node.key == cur.key:
+                break
+            if node.key > cur.key:
+                cur = cur.right
+            else:
+                cur = cur.left
+        return (t_left,t_right)
 
